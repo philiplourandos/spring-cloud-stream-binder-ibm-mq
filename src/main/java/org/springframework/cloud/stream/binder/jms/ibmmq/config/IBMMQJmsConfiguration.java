@@ -7,7 +7,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.jms.JndiConnectionFactoryAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.stream.binder.jms.config.JmsBinderAutoConfiguration;
-import org.springframework.cloud.stream.binder.jms.config.JmsBinderConfigurationProperties;
 import org.springframework.cloud.stream.binder.jms.ibmmq.IBMMQQueueProvisioner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -71,11 +70,8 @@ public class IBMMQJmsConfiguration {
 
 	@Bean
 	public IBMMQQueueProvisioner ibmMQQueueProvisioner(
-			MQConnectionFactory connectionFactory,
-			JmsBinderConfigurationProperties binderConfigurationProperties)
-			throws Exception {
-		return new IBMMQQueueProvisioner(connectionFactory, configurationProperties,
-				binderConfigurationProperties);
+			MQConnectionFactory connectionFactory) throws Exception {
+		return new IBMMQQueueProvisioner(connectionFactory, configurationProperties);
 	}
 
 }

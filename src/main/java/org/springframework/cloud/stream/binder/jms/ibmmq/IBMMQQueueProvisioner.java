@@ -5,7 +5,6 @@ import javax.jms.ConnectionFactory;
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cloud.stream.binder.jms.config.JmsBinderConfigurationProperties;
 import org.springframework.cloud.stream.binder.jms.ibmmq.config.IBMMQConfigurationProperties;
 import org.springframework.cloud.stream.binder.jms.spi.QueueProvisioner;
 
@@ -26,12 +25,10 @@ public class IBMMQQueueProvisioner implements QueueProvisioner {
 	private final IBMMQRequests ibmMQRequests;
 
 	public IBMMQQueueProvisioner(ConnectionFactory connectionFactory,
-			IBMMQConfigurationProperties configurationProperties,
-			JmsBinderConfigurationProperties binderConfigurationProperties)
-			throws MQException {
+			IBMMQConfigurationProperties configurationProperties) throws MQException {
 
 		this.ibmMQRequests = new IBMMQRequests(connectionFactory,
-				binderConfigurationProperties, configurationProperties);
+				configurationProperties);
 	}
 
 	@Override

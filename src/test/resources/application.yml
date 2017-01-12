@@ -7,7 +7,7 @@ spring:
     enabled: false
 
 ibmmq:
-  host: 192.168.99.100
+  host: ibmmq
   port: 1414
   username: mq
   password: mq

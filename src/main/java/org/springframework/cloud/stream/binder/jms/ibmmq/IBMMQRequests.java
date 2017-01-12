@@ -11,7 +11,6 @@ import javax.jms.Topic;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cloud.stream.binder.jms.config.JmsBinderConfigurationProperties;
 import org.springframework.cloud.stream.binder.jms.ibmmq.config.IBMMQConfigurationProperties;
 import org.springframework.jms.support.JmsUtils;
 
@@ -37,15 +36,11 @@ public class IBMMQRequests {
 	 */
 	private final MQQueueManager queueManager;
 
-	private final JmsBinderConfigurationProperties binderConfigurationProperties;
-
 	private final IBMMQConfigurationProperties configurationProperties;
 
 	public IBMMQRequests(ConnectionFactory connectionFactory,
-			JmsBinderConfigurationProperties binderConfigurationProperties,
 			IBMMQConfigurationProperties configurationProperties) {
 		this.connectionFactory = connectionFactory;
-		this.binderConfigurationProperties = binderConfigurationProperties;
 		this.configurationProperties = configurationProperties;
 
 		try {
@@ -91,9 +86,7 @@ public class IBMMQRequests {
 		Session session = null;
 		try {
 			connection = connectionFactory.createConnection();
-			session = connection.createSession(
-					binderConfigurationProperties.isTransacted(),
-					Session.AUTO_ACKNOWLEDGE);
+			session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
 			return session.createTopic(topicName);
 		}
 		catch (JMSException e) {
@@ -140,9 +133,7 @@ public class IBMMQRequests {
 		Session session = null;
 		try {
 			connection = connectionFactory.createConnection();
-			session = connection.createSession(
-					binderConfigurationProperties.isTransacted(),
-					Session.AUTO_ACKNOWLEDGE);
+			session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
 			return session.createQueue(queueName);
 		}
 		catch (JMSException e) {

@@ -1,6 +1,5 @@
 package org.springframework.cloud.stream.binder.jms.ibmmq.integration;
 
-import org.springframework.cloud.stream.binder.jms.config.JmsBinderConfigurationProperties;
 import org.springframework.cloud.stream.binder.jms.ibmmq.IBMMQQueueProvisioner;
 import org.springframework.cloud.stream.binder.jms.ibmmq.IBMMQTestUtils;
 
@@ -12,8 +11,7 @@ public class EndToEndIntegrationTests extends
 
 	public EndToEndIntegrationTests() throws Exception {
 		super(new IBMMQQueueProvisioner(IBMMQTestUtils.createConnectionFactory(),
-				IBMMQTestUtils.getIBMMQProperties(),
-				new JmsBinderConfigurationProperties()),
+				IBMMQTestUtils.getIBMMQProperties()),
 				IBMMQTestUtils.createConnectionFactory());
 	}
 
