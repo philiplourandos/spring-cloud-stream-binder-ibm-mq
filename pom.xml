@@ -5,16 +5,16 @@
     <parent>
         <artifactId>spring-cloud-build</artifactId>
         <groupId>org.springframework.cloud</groupId>
-        <version>1.2.1.RELEASE</version>
+        <version>1.3.7.RELEASE</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>spring-cloud-stream-binder-jms-ibm-mq</artifactId>
-    <version>1.0.0.BUILD-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
 
     <properties>
         <ibm.mq.version>8</ibm.mq.version>
-        <scst-jms.version>1.0.0.BUILD-SNAPSHOT</scst-jms.version>
+        <scst-jms.version>1.1.0-SNAPSHOT</scst-jms.version>
     </properties>
 
     <dependencyManagement>
@@ -90,7 +90,7 @@
                     <name>Spring Releases</name>
                     <url>http://repo.spring.io/release</url>
                     <snapshots>
-                        <enabled>false</enabled>
+                        <enabled>true</enabled>
                     </snapshots>
                 </repository>
             </repositories>
