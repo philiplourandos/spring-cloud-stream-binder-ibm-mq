@@ -2,20 +2,20 @@ package org.springframework.cloud.stream.binder.jms.ibmmq;
 
 import javax.jms.ConnectionFactory;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.stream.binder.jms.ibmmq.config.IBMMQConfigurationProperties;
-import org.springframework.cloud.stream.binder.jms.spi.QueueProvisioner;
 
 import com.ibm.mq.MQException;
+import org.springframework.cloud.stream.provisioning.ProvisioningProvider;
 
 /**
  * {@link QueueProvisioner} for IBM MQ.
  *
  * @author Donovan Muller
  */
-public class IBMMQQueueProvisioner implements QueueProvisioner {
+public class IBMMQQueueProvisioner implements ProvisioningProvider {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(IBMMQQueueProvisioner.class);
