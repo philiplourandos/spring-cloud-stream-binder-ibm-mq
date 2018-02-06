@@ -61,7 +61,7 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
+<!--
     <profiles>
         <profile>
             <id>spring</id>
@@ -114,4 +114,5 @@
             </pluginRepositories>
         </profile>
     </profiles>
+-->
 </project>
