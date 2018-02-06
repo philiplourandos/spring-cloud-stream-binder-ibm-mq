@@ -16,6 +16,8 @@ import org.springframework.util.StringUtils;
 import com.ibm.mq.MQEnvironment;
 import com.ibm.mq.jms.MQConnectionFactory;
 import com.ibm.msg.client.wmq.WMQConstants;
+import org.springframework.cloud.stream.binder.jms.utils.Base64UrlNamingStrategy;
+import org.springframework.cloud.stream.binder.jms.utils.DestinationNameResolver;
 
 /**
  * IBM MQ specific configuration.
@@ -71,7 +73,8 @@ public class IBMMQJmsConfiguration {
 	@Bean
 	public IBMMQQueueProvisioner ibmMQQueueProvisioner(
 			MQConnectionFactory connectionFactory) throws Exception {
-		return new IBMMQQueueProvisioner(connectionFactory, configurationProperties);
+		return new IBMMQQueueProvisioner(connectionFactory, configurationProperties, 
+			new DestinationNameResolver(new Base64UrlNamingStrategy()));
 	}
 
 }
