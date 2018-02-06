@@ -8,6 +8,20 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cloud.stream.binder.jms.ibmmq.config.IBMMQConfigurationProperties;
 
 import com.ibm.mq.MQException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import javax.jms.Queue;
+import javax.jms.Topic;
+import org.springframework.cloud.stream.binder.ConsumerProperties;
+import org.springframework.cloud.stream.binder.ProducerProperties;
+import org.springframework.cloud.stream.binder.jms.provisioning.JmsConsumerDestination;
+import org.springframework.cloud.stream.binder.jms.provisioning.JmsProducerDestination;
+import org.springframework.cloud.stream.binder.jms.utils.DestinationNameResolver;
+import org.springframework.cloud.stream.binder.jms.utils.DestinationNames;
+import org.springframework.cloud.stream.provisioning.ConsumerDestination;
+import org.springframework.cloud.stream.provisioning.ProducerDestination;
+import org.springframework.cloud.stream.provisioning.ProvisioningException;
 import org.springframework.cloud.stream.provisioning.ProvisioningProvider;
 
 /**
@@ -24,42 +38,68 @@ public class IBMMQQueueProvisioner implements ProvisioningProvider {
 
 	private final IBMMQRequests ibmMQRequests;
 
+	private final DestinationNameResolver destinationNameResolver;
+	
 	public IBMMQQueueProvisioner(ConnectionFactory connectionFactory,
-			IBMMQConfigurationProperties configurationProperties) throws MQException {
+			IBMMQConfigurationProperties configurationProperties,
+			DestinationNameResolver destinationNameResolver) throws MQException {
 
 		this.ibmMQRequests = new IBMMQRequests(connectionFactory,
 				configurationProperties);
+
+		this.destinationNameResolver = destinationNameResolver;
 	}
 
 	@Override
-	public Destinations provisionTopicAndConsumerGroup(String topicName,
-			String... consumerGroupName) {
-		logger.info("Provisioning an IBM topic '{}' and consumer groups: {}", topicName,
-				consumerGroupName);
+	public ConsumerDestination provisionConsumerDestination(String name, String group, ConsumerProperties properties) throws ProvisioningException {
+		String groupName = this.destinationNameResolver.resolveQueueNameForInputGroup(group, properties);
+		String topicName = this.destinationNameResolver.resolveQueueNameForInputGroup(name, properties);
 
-		Destinations.Factory destinationsFactory = new Destinations.Factory();
-		// see
-		// http://www.ibm.com/support/knowledgecenter/SSFKSJ_9.0.0/com.ibm.mq.tro.doc/q048270_.htm
-		String sanitisedTopicName = topicName.replaceAll("-", ".");
-		destinationsFactory.withTopic(ibmMQRequests.createTopic(sanitisedTopicName));
+		provisionTopic(topicName);
+		final Queue queue = provisionConsumerGroup(topicName, groupName);
 
-		if (ArrayUtils.isEmpty(consumerGroupName)) {
-			return destinationsFactory.build();
-		}
-
-		for (String queue : consumerGroupName) {
-			String sanitisedQueueName = queue.replaceAll("-", ".");
-			destinationsFactory.addGroup(ibmMQRequests.createQueue(sanitisedQueueName));
-			ibmMQRequests.subcribeQueueToTopic(sanitisedTopicName, sanitisedQueueName);
-		}
-
-		return destinationsFactory.build();
+		return new JmsConsumerDestination(queue);
+		
 	}
 
 	@Override
-	public String provisionDeadLetterQueue() {
-		ibmMQRequests.createQueue(IBM_MQ_DLQ);
+	public ProducerDestination provisionProducerDestination(String name, ProducerProperties properties) throws ProvisioningException {
+		Collection<DestinationNames> topicAndQueueNames =
+				this.destinationNameResolver.resolveTopicAndQueueNameForRequiredGroups(name, properties);
 
-		return IBM_MQ_DLQ;
+		final Map<Integer, Topic> partitionTopics = new HashMap<>();
+
+		for (DestinationNames destinationNames : topicAndQueueNames) {
+			Topic topic = provisionTopic(destinationNames.getTopicName());
+			provisionConsumerGroup(destinationNames.getTopicName(),
+					destinationNames.getGroupNames());
+
+			if (destinationNames.getPartitionIndex() != null) {
+				partitionTopics.put(destinationNames.getPartitionIndex(), topic);
+			}
+			else {
+				partitionTopics.put(-1, topic);
+			}
+		}
+		return new JmsProducerDestination(partitionTopics);
+	}
+	
+	private Topic provisionTopic(String topicName) {
+		return ibmMQRequests.createTopic(topicName);
+	}
+
+	private Queue provisionConsumerGroup(String topicName, String... consumerGroupName) {
+		Queue[] groups = null;
+		if (ArrayUtils.isNotEmpty(consumerGroupName)) {
+			groups = new Queue[consumerGroupName.length];
+			for (int i = 0; i < consumerGroupName.length; i++) {
+				groups[i] = ibmMQRequests.createQueue(consumerGroupName[i].replaceAll("-", "."));
+			}
+		}
+
+		if (groups != null) {
+			return groups[0];
+		}
+		return null;
 	}
 }
